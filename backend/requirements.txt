@@ -1,0 +1,7 @@
+pydicom
+numpy
+Pillow
+opencv-python
+matplotlib
+torch
+torchvision

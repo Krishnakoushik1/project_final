@@ -1,16 +1,137 @@
-# React + Vite
+# 🫁 AI-Based Lung Cancer Detection Using CT Images
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project allows users to:
 
-Currently, two official plugins are available:
+- Upload DICOM CT scan slices
+- Convert DICOM to PNG
+- View slices with a vertical slider
+- Select a slice
+- Draw a Region of Interest (ROI)
+- Send selected slice + ROI to backend
+- Receive prediction response (dummy for now)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+# 📂 Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+# 🛠️ TECHNOLOGIES USED
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Frontend
+- React.js
+- JSZip
+
+## Backend
+- Node.js
+- Express.js
+- Multer
+- Python (DICOM conversion)
+
+## Python
+- pydicom
+- numpy
+- Pillow
+- OpenCV
+
+---
+
+# ⚙️ COMPLETE SETUP GUIDE (FROM SCRATCH)
+
+## 🔹 1️⃣ Clone the Repository
+        myclonerepo:https://github.com/Krishnakoushik1/project_final.git
+
+
+---
+
+## 🔹 2️⃣ Install Node.js
+
+Download from:
+https://nodejs.org
+
+Verify installation:
+`node -v`
+`npm -v`
+
+
+
+
+---
+
+## 🔹 3️⃣ Setup Backend
+
+
+cd backend
+npm install
+
+
+### Install Python dependencies:
+
+Make sure Python 3.9+ is installed:
+
+python --version
+
+Install requirements:
+
+pip install -r requirements.txt
+
+---
+## 🔹 4️⃣ Start Backend Server
+
+node server.js
+
+You should see:
+Server running on http://localhost:5000
+---
+## 🔹 5️⃣ Setup Frontend
+Open new terminal:
+
+cd frontend
+npm install
+npm install jszip
+---
+## 🔹 6️⃣ Start Frontend
+
+npm start
+Frontend runs at:
+http://localhost:3000
+---
+# 🧠 HOW THE SYSTEM WORKS
+
+1. Upload DICOM files
+2. Backend converts DICOM → PNG
+3. Frontend displays slices
+4. User selects slice
+5. User draws ROI
+6. ROI + selected slice sent to backend
+7. Backend:
+   - Saves ROI JSON
+   - Stores selected slice DCM
+   - Returns dummy prediction
+8. Frontend displays prediction below Predict button
+----
+# 📁 Backend Data Storage
+
+- uploads/ → all uploaded DICOM files
+- converted_png/ → PNG images
+- received_data/ → ROI JSON files
+- selected_slice/ → only selected slice DCM (auto replaced)
+
+---
+# 🔮 Future Improvements
+
+- Integrate trained PyTorch model
+- ROI cropping in backend
+- Heatmap visualization
+- Confidence graph display
+- Deploy to cloud (Render / AWS)
+
+---
+# 🧪 Example Prediction Response
+
+```json
+{
+  "prediction": "Malignant",
+  "confidence": 0.91,
+  "num_slices_used": 9
+}

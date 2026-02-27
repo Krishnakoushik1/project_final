@@ -112,40 +112,47 @@ export default function MainPage() {
   };
 
   // ================= PREDICT =================
-  const handlePredict = async () => {
+// ================= PREDICT =================
+const handlePredict = async () => {
 
-    // 🔥 JSON payload to send backend
-    const payload = {
-      slice_index: selectedIndex,
-      roi: {
-        x: roiRect.x,
-        y: roiRect.y,
-        width: roiRect.width,
-        height: roiRect.height
-      }
-    };
+  if (!roiRect) return;
 
-    console.log("Payload to backend:", payload);
-
-    // 🔥 Mock response (until backend ready)
-    const mockResponse = {
-      prediction: "Malignant",
-      confidence: 0.91,
-      num_slices_used: 9,
-      slice_confidences: [0.88, 0.91, 0.93, 0.90, 0.87, 0.89, 0.92, 0.90, 0.91],
-      heatmap: null,
-      xai_summary: {
-        primary_focus: "Irregular border region",
-        supporting_evidence: [
-          "High activation around spiculated margins",
-          "Heterogeneous internal texture"
-        ],
-        interpretation: "Findings consistent with malignant morphology"
-      }
-    };
-
-    setPrediction(mockResponse);
+  const payload = {
+    slice_index: selectedIndex,
+    roi: {
+      x: roiRect.x,
+      y: roiRect.y,
+      width: roiRect.width,
+      height: roiRect.height
+    }
   };
+
+  console.log("Sending payload:", payload);
+
+  const formData = new FormData();
+  formData.append("metadata", JSON.stringify(payload));
+
+  // attach original file (png or dcm)
+  if (slices[selectedIndex]?.file) {
+    formData.append("file", slices[selectedIndex].file);
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/predict", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    console.log("Backend Response:", data);
+
+    setPrediction(data);
+
+  } catch (error) {
+    console.error("Prediction error:", error);
+  }
+};
 
   // ================= UPLOAD =================
   const handlePngUpload = (e) => {

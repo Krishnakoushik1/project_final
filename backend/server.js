@@ -9,9 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ---------------- FOLDERS ----------------
+/* ================= FOLDERS ================= */
+
 const UPLOAD_FOLDER = path.join(__dirname, "uploads");
 const CONVERTED_FOLDER = path.join(__dirname, "converted_png");
+const RECEIVED_FOLDER = path.join(__dirname, "received_data");
+const SELECTED_SLICE_FOLDER = path.join(__dirname, "selected_slice"); // 🔥 NEW FOLDER
 
 // Create folders if not exist
 if (!fs.existsSync(UPLOAD_FOLDER)) {
@@ -22,36 +25,46 @@ if (!fs.existsSync(CONVERTED_FOLDER)) {
   fs.mkdirSync(CONVERTED_FOLDER);
 }
 
-// ---------------- MULTER SETUP ----------------
+if (!fs.existsSync(RECEIVED_FOLDER)) {
+  fs.mkdirSync(RECEIVED_FOLDER);
+}
+
+if (!fs.existsSync(SELECTED_SLICE_FOLDER)) {   // 🔥 NEW
+  fs.mkdirSync(SELECTED_SLICE_FOLDER);
+}
+
+/* ================= MULTER SETUP ================= */
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, UPLOAD_FOLDER);
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // keep original name for correct order
+    cb(null, file.originalname);
   },
 });
 
 const upload = multer({ storage });
 
-// ---------------- SERVE PNG FILES ----------------
+/* ================= SERVE PNG FILES ================= */
+
 app.use("/png", express.static(CONVERTED_FOLDER));
 
-// ---------------- DICOM UPLOAD ROUTE ----------------
+/* ================= DICOM UPLOAD ROUTE ================= */
+
 app.post("/upload-dcm", (req, res) => {
   console.log("Upload DCM route triggered");
 
-  // 🔥 1. Clear uploads folder BEFORE saving new files
+  // Clear uploads folder
   fs.readdirSync(UPLOAD_FOLDER).forEach(file => {
     fs.unlinkSync(path.join(UPLOAD_FOLDER, file));
   });
 
-  // 🔥 2. Clear converted folder
+  // Clear converted folder
   fs.readdirSync(CONVERTED_FOLDER).forEach(file => {
     fs.unlinkSync(path.join(CONVERTED_FOLDER, file));
   });
 
-  // 🔥 3. Now call multer to save new files
   upload.array("files")(req, res, function (err) {
     if (err) {
       console.error(err);
@@ -82,7 +95,74 @@ app.post("/upload-dcm", (req, res) => {
     });
   });
 });
-// ---------------- START SERVER ----------------
+
+/* ================= PREDICT ROUTE ================= */
+
+app.post("/predict", upload.single("file"), (req, res) => {
+
+  console.log("\n========= PREDICT API CALLED =========\n");
+
+  let metadata = null;
+
+  try {
+    metadata = JSON.parse(req.body.metadata);
+    console.log("Slice Index:", metadata.slice_index);
+    console.log("ROI:", metadata.roi);
+  } catch (err) {
+    console.log("Metadata parsing failed:", err);
+  }
+
+  // 🔥 SAVE ROI JSON FILE (unchanged behavior)
+  if (metadata) {
+    const jsonPath = path.join(
+      RECEIVED_FOLDER,
+      `roi_${Date.now()}.json`
+    );
+
+    fs.writeFileSync(jsonPath, JSON.stringify(metadata, null, 2));
+    console.log("ROI JSON saved at:", jsonPath);
+  }
+
+  // 🔥 SAVE SELECTED SLICE DCM IN NEW FOLDER
+  if (req.file) {
+
+    // Clear previous selected slice
+    fs.readdirSync(SELECTED_SLICE_FOLDER).forEach(file => {
+      fs.unlinkSync(path.join(SELECTED_SLICE_FOLDER, file));
+    });
+
+    const newPath = path.join(SELECTED_SLICE_FOLDER, req.file.originalname);
+
+    fs.copyFileSync(req.file.path, newPath);
+
+    console.log("Selected slice copied to:", newPath);
+  } else {
+    console.log("No file received");
+  }
+
+  console.log("\n======================================\n");
+
+  // Dummy prediction response
+  res.json({
+    prediction: "Malignant",
+    confidence: 0.91,
+    num_slices_used: 9,
+    slice_confidences: [0.88, 0.91, 0.93, 0.90, 0.87, 0.89, 0.92, 0.90, 0.91],
+    heatmap: null,
+    xai_summary: {
+      primary_focus: "Irregular border region",
+      supporting_evidence: [
+        "High activation around spiculated margins",
+        "Heterogeneous internal texture"
+      ],
+      interpretation: "Findings consistent with malignant morphology"
+    }
+  });
+
+});
+
+/* ================= START SERVER ================= */
+
 app.listen(5000, () => {
   console.log("Server running on http://localhost:5000");
 });
