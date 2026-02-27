@@ -1,17 +1,23 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import UploadPage from "./components/UploadPage";
-import SliceViewerPage from "./components/SliceViewerPage";
-import ROIPage from "./components/ROIPage";
+import MainPage from "./components/MainPage";
+import "./styles.css";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<UploadPage />} />
-        <Route path="/slices" element={<SliceViewerPage />} />
-        <Route path="/roi" element={<ROIPage />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="app-container">
+      <header className="app-header">
+        <h1>XAI - Based Lung Nodule Diagnosis Using Multi-Slice CT Imaging </h1>
+      </header>
+
+      <main className="app-main">
+        <MainPage />
+      </main>
+
+      <footer className="app-footer">
+        <p>Team Members: Your Team Names Here</p>
+        <p>Guide: Guide Name Here</p>
+        <p>Final Year Project 2025</p>
+      </footer>
+    </div>
   );
 }
 
