@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import JSZip from "jszip";
+import { FaBrain, FaUpload, FaChartBar } from "react-icons/fa";
+import { MdDescription } from "react-icons/md";
+
 
 export default function MainPage() {
   const [slices, setSlices] = useState([]);
@@ -226,7 +229,7 @@ const handlePredict = async () => {
       {/* DESCRIPTION */}
       <section className="section">
         <div className="info-box">
-          <h2>Project Description</h2>
+          <h2><MdDescription /> Project Description</h2>
           <p>
             AI-based lung cancer detection using CT scan images.
             Upload slices, select a region of interest (ROI),
@@ -238,7 +241,7 @@ const handlePredict = async () => {
       {/* GUIDELINES */}
       <section className="section">
         <div className="info-box">
-          <h2>Guidelines</h2>
+          <h2><FaBrain /> Guidelines</h2>
           <ul style={{ textAlign: "left", marginTop: "15px" }}>
             <li>Upload PNG, DICOM, or ZIP files.</li>
             <li>Select a slice before drawing ROI.</li>
@@ -251,7 +254,7 @@ const handlePredict = async () => {
 
       {/* Upload */}
       <section className="section">
-        <h2>Upload CT Data</h2>
+        <h2><FaUpload /> Upload CT Data</h2>
         <div className="upload-options">
           <button onClick={() => document.getElementById("pngInput").click()}>
             Upload PNG
@@ -350,7 +353,7 @@ const handlePredict = async () => {
                     textAlign: "left"
                   }}
                 >
-                  <h3>Prediction Result</h3>
+                  <h3><FaChartBar /> Prediction Result</h3>
 
                   <p><strong>Class:</strong> {prediction.prediction}</p>
                   <p><strong>Confidence:</strong> {(prediction.confidence * 100).toFixed(2)}%</p>
